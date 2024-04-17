@@ -1,5 +1,6 @@
 import openpyxl
 from datetime import datetime
+import pandas as pd
 
 from time import sleep
 import tkinter as tk
@@ -7,7 +8,7 @@ from tkinter import filedialog
 
 def selecionar_arquivo():
     global local_arquivo
-    arquivo = filedialog.askopenfilename(initialdir="/", title="Selecione o arquivo", filetypes=(("Arquivos de texto", "*.xlsx"), ("Todos os arquivos", "*.*")))
+    arquivo = filedialog.askopenfilename(initialdir="/", title="Selecione o arquivo", filetypes=(("Arquivos de texto", "*.xls"), ("Todos os arquivos", "*.*")))
     if arquivo:
         local_arquivo=arquivo
         label_local_arquivo.config(text="Local do arquivo selecionado: " + arquivo)
@@ -29,25 +30,25 @@ label_local_arquivo.pack()
 
 # Rodar aplicação
 janela.mainloop()
-workbook = openpyxl.load_workbook(local_arquivo)
-sheet_produtos=workbook['dem']
+#workbook = openpyxl.load_workbook(local_arquivo)
+workbook = pd.read_excel(local_arquivo)
 novoWb = openpyxl.Workbook()
 ws = novoWb.active
 totalDebitos=0
 totalCreditos=0
 data_hora_atual = datetime.now()
 data_hora_formatada = data_hora_atual.strftime("%Y%m%d %H%M%S")
-for linha in sheet_produtos.iter_rows(min_row=9):
-    if(linha[0].value is not None and 'Total de débitos' in linha[0].value and totalDebitos==0):
-        linhaAInserir=["Total de débitos",linha[18].value]
+for linha,row in workbook.iterrows():
+    if(pd.notna(workbook.iloc[linha,0]) and 'Total de débitos' in workbook.iloc[linha,0] and totalDebitos==0):
+        linhaAInserir=["Total de débitos",workbook.iloc[linha,18]]
         totalDebitos=1
         ws.append(linhaAInserir)
-    if(linha[0].value is not None and 'Total de créditos' in linha[0].value and totalCreditos==0):
-        linhaAInserir=["Total de créditos",linha[18].value]
+    if(pd.notna(workbook.iloc[linha,0]) and 'Total de créditos' in workbook.iloc[linha,0] and totalCreditos==0):
+        linhaAInserir=["Total de créditos",workbook.iloc[linha,18]]
         totalCreditos=1
         ws.append(linhaAInserir)
-    if(linha[1].value is not None and 'CFOP' in linha[1].value):
-        linhaAInserir=[linha[1].value,linha[14].value]
+    if(pd.notna(workbook.iloc[linha,1]) and 'CFOP' in workbook.iloc[linha,1]):
+        linhaAInserir=[workbook.iloc[linha,1],workbook.iloc[linha,14]]
         ws.append(linhaAInserir)
        
 novoWb.save(data_hora_formatada+".xlsx")
