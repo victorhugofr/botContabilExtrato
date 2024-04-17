@@ -37,8 +37,11 @@ ws = novoWb.active
 totalDebitos=0
 totalCreditos=0
 data_hora_atual = datetime.now()
+tipo=''
 data_hora_formatada = data_hora_atual.strftime("%Y%m%d %H%M%S")
 for linha,row in workbook.iterrows():
+    if(pd.notna(workbook.iloc[linha,0]) and 'Movimento' in workbook.iloc[linha,0]):
+        tipo = workbook.iloc[linha,4]
     if(pd.notna(workbook.iloc[linha,0]) and 'Total de débitos' in workbook.iloc[linha,0] and totalDebitos==0):
         linhaAInserir=["Total de débitos",workbook.iloc[linha,18]]
         totalDebitos=1
@@ -48,7 +51,7 @@ for linha,row in workbook.iterrows():
         totalCreditos=1
         ws.append(linhaAInserir)
     if(pd.notna(workbook.iloc[linha,1]) and 'CFOP' in workbook.iloc[linha,1]):
-        linhaAInserir=[workbook.iloc[linha,1],workbook.iloc[linha,14]]
+        linhaAInserir=[workbook.iloc[linha,1],workbook.iloc[linha,14],tipo]
         ws.append(linhaAInserir)
        
 novoWb.save(data_hora_formatada+".xlsx")
